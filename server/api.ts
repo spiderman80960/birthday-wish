@@ -1,6 +1,19 @@
 import type { Request, Response } from "express";
+import crypto from "crypto";
 
-const SECRET_CODE = "bangaram";
+// SHA-256 hash of the default secret code so the plain word is never exposed on GitHub
+const DEFAULT_SECRET_CODE_HASH = "768795de3bf3a28e4300a670d0788e4e62e0a16002c19b450e44c5da93c71c5b";
+
+function isSecretCodeValid(inputCode: string): boolean {
+  const clean = (typeof inputCode === "string" ? inputCode : "").trim().toLowerCase();
+  if (!clean) return false;
+  if (process.env.SECRET_CODE) {
+    return clean === process.env.SECRET_CODE.trim().toLowerCase();
+  }
+  const hash = crypto.createHash("sha256").update(clean).digest("hex");
+  return hash === DEFAULT_SECRET_CODE_HASH;
+}
+
 const DEFAULT_RECIPIENT = "raghavaram219@gmail.com";
 const DEFAULT_FROM = "Birthday Letter <onboarding@resend.dev>";
 
@@ -107,7 +120,7 @@ async function sendNotificationEmail(details: {
 
       <div style="background: #ffffff; border-radius: 12px; padding: 20px; border: 1px solid #ede4ff; margin-bottom: 20px;">
         <p style="margin: 0 0 10px; font-size: 14px; color: #4c1d95;">
-          <strong>Status:</strong> Successfully unlocked with code <em>"bangaram"</em> ✨
+          <strong>Status:</strong> Successfully unlocked with the secret code ✨
         </p>
         <p style="margin: 0 0 10px; font-size: 14px; color: #4c1d95;">
           <strong>Date &amp; Time:</strong> ${details.timestampStr} (${details.timezone})
@@ -127,7 +140,7 @@ async function sendNotificationEmail(details: {
     </div>
   `;
 
-  const textBody = `Your birthday letter has been opened 💌\n\nRamya just successfully unlocked and opened the full birthday letter with the secret code "bangaram"!\n\nDate & Time: ${details.timestampStr} (${details.timezone})\nWebsite: ${details.websiteUrl || "N/A"}\n\n- Ramya's Birthday Wish Portal`;
+  const textBody = `Your birthday letter has been opened 💌\n\nRamya just successfully unlocked and opened the full birthday letter with the secret code!\n\nDate & Time: ${details.timestampStr} (${details.timezone})\nWebsite: ${details.websiteUrl || "N/A"}\n\n- Ramya's Birthday Wish Portal`;
 
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -169,10 +182,8 @@ export async function handleUnlockLetter(req: Request | any, res: Response | any
     const body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {});
     const { code, websiteUrl, timezone, sessionId } = body;
 
-    const cleanCode = (typeof code === "string" ? code : "").trim().toLowerCase();
-
-    // Verify secret code (bangaram)
-    if (cleanCode !== SECRET_CODE) {
+    // Verify secret code (using SHA-256 hash or SECRET_CODE env variable)
+    if (!isSecretCodeValid(code)) {
       return sendJsonResponse(res, 401, {
         success: false,
         error: "Hmm, not quite! Think about what we used to call each other. 🥹"

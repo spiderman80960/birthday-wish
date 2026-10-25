@@ -91,10 +91,26 @@ export default function Memories() {
     });
   };
 
-  const handlePasswordSubmit = (e?: React.FormEvent) => {
+  const handlePasswordSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     const normalized = passwordInput.trim().toUpperCase().replace(/\s+/g, " ");
-    if (normalized === "KAAV KAAV" || normalized === "KAAVKAAV") {
+
+    // SHA-256 hash checking so secret word is never exposed in plain text in client code or GitHub
+    const encoder = new TextEncoder();
+    const hashBuffer = await crypto.subtle.digest("SHA-256", encoder.encode(normalized));
+    const inputHash = Array.from(new Uint8Array(hashBuffer))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+
+    // Precomputed SHA-256 hashes for accepted password variations
+    const validHashes = new Set([
+      "ee2f7a83825bba3de1348f9b54bcc0dc7292653ba2769c4b70d2ceee557f2b50",
+      "caf0271dadab4389d47f6b45b311c08979c41007b97b7c7ac958e0d9aa4a48e0",
+      "2a00e9ba670535790234d6946ec81080ccd2b5da74e136cd2dae3a3af579e294",
+      "ffee0a3f1857b498a9447f476cb9c81dab72853f0b6fecfa9e1f220ad06176ec",
+    ]);
+
+    if (validHashes.has(inputHash)) {
       setPasswordError("");
       setGoofyVaultUnlocked(true);
       playSparkleStrum();
