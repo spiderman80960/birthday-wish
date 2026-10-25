@@ -166,7 +166,8 @@ function sendJsonResponse(res: any, statusCode: number, data: any) {
  */
 export async function handleUnlockLetter(req: Request | any, res: Response | any) {
   try {
-    const { code, websiteUrl, timezone, sessionId } = req.body || {};
+    const body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {});
+    const { code, websiteUrl, timezone, sessionId } = body;
 
     const cleanCode = (typeof code === "string" ? code : "").trim().toLowerCase();
 

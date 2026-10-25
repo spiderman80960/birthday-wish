@@ -18,9 +18,12 @@ async function startServer() {
   // API Routes
   app.post("/api/unlock-letter", handleUnlockLetter);
 
-  // Serve static files from dist/public in production
+  // Serve static files from dist in production
+  const localDist = path.resolve(__dirname, "..", "dist");
   const localPublic = path.resolve(__dirname, "public");
-  const staticPath = fs.existsSync(localPublic)
+  const staticPath = fs.existsSync(localDist)
+    ? localDist
+    : fs.existsSync(localPublic)
     ? localPublic
     : path.resolve(__dirname, "..", "dist", "public");
 
