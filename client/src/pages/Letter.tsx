@@ -201,9 +201,18 @@ export default function Letter() {
         })
       });
 
-      const data = await res.json();
-      if (!res.ok || !data.success || !data.letter) {
-        setUnlockError(data.error || "Hmm, not quite! Think about what we used to call each other. 🥹");
+      let data: any = null;
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        console.error("Non-JSON response from /api/unlock-letter:", res.status, jsonErr);
+      }
+
+      if (!res.ok || !data || !data.success || !data.letter) {
+        const errorMsg = data?.error || (res.status === 401
+          ? "Hmm, not quite! Think about what we used to call each other. 🥹"
+          : "Could not verify code. Please check your connection and try again.");
+        setUnlockError(errorMsg);
         playPopSound();
         setIsUnlocking(false);
         return;

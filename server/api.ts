@@ -223,14 +223,16 @@ export async function handleUnlockLetter(req: Request | any, res: Response | any
         formattedDate = new Date().toLocaleString();
       }
 
-      // Fire email notification in background, handling errors gracefully
-      sendNotificationEmail({
-        timestampStr: formattedDate,
-        websiteUrl: websiteUrl || process.env.WEBSITE_URL || "",
-        timezone: tz
-      }).catch((err) => {
+      // Send email notification safely
+      try {
+        await sendNotificationEmail({
+          timestampStr: formattedDate,
+          websiteUrl: websiteUrl || process.env.WEBSITE_URL || "",
+          timezone: tz
+        });
+      } catch (err) {
         console.error("[Notification] Failed to send email notification:", err);
-      });
+      }
     } else {
       console.log(`[Notification] Debounced duplicate notification for ${dedupeKey}`);
     }
