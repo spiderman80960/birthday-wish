@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Camera, Sparkles, Heart, ArrowRight, CheckCircle2, Film, Image as ImageIcon, Lock, Unlock, Laugh, PlusCircle, KeyRound, Trophy, RotateCcw } from "lucide-react";
+import { Camera, Sparkles, Heart, ArrowRight, CheckCircle2, Film, Image as ImageIcon, Lock, Unlock, Laugh, PlusCircle, KeyRound } from "lucide-react";
 import { PhotoSlot } from "@/components/PhotoSlot";
+import { LoveMeter } from "@/components/LoveMeter";
 import { launchConfetti } from "@/lib/confetti";
 import { playSparkleStrum, playChimeSound, playPopSound } from "@/lib/audio";
 
@@ -29,36 +30,11 @@ const STANDARD_MEMORY_ITEMS: MediaItem[] = [
 ];
 
 export const GOOFY_MEMORIES: MediaItem[] = [
-  { id: 101, type: "photo", src: "/photos/funny_img.jpg", label: "GOOFY #01", tilt: -2, tape: "cross", sticker: "100% unhinged 🤪", prompt: "One of my absolute favorite kinds of memories — zero seriousness, just you being you and us being completely ridiculous for a minute!" },
+  { id: 101, type: "photo", src: "/photos/funny_img.jpg", label: "GOOFY #01", tilt: -2, tape: "cross", sticker: "100% unhinged 🤪", prompt: "" },
+  { id: 102, type: "photo", src: "/photos/peek.jpg", label: "GOOFY #02", tilt: 2, tape: "top-left", sticker: "Peek-a-boo 🫣", prompt: "" },
+  { id: 103, type: "photo", src: "/photos/peppapig.jpg", label: "GOOFY #03", tilt: -2, tape: "top-right", sticker: "Peppa Pig 🐷", prompt: "" },
+  { id: 104, type: "video", src: "/videos/challenge.mp4", label: "GOOFY #04", tilt: 1, tape: "top", sticker: "The Challenge 🎬", prompt: "" },
 ];
-
-interface MemoryCard {
-  id: number;
-  pairId: number;
-  emoji: string;
-  label: string;
-}
-
-const MEMORY_CARDS_DATA = [
-  { pairId: 1, emoji: "🏓", label: "TT Match" },
-  { pairId: 2, emoji: "🍰", label: "Cake Run" },
-  { pairId: 3, emoji: "🎢", label: "Wonderla" },
-  { pairId: 4, emoji: "📸", label: "Candid Duo" },
-];
-
-function generateShuffledDeck(): MemoryCard[] {
-  const deck: MemoryCard[] = [];
-  let cardId = 0;
-  MEMORY_CARDS_DATA.forEach((item) => {
-    deck.push({ id: cardId++, ...item });
-    deck.push({ id: cardId++, ...item });
-  });
-  for (let i = deck.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [deck[i], deck[j]] = [deck[j], deck[i]];
-  }
-  return deck;
-}
 
 export default function Memories() {
   const [filter, setFilter] = useState<MediaType>("all");
@@ -67,11 +43,6 @@ export default function Memories() {
   const [passwordInput, setPasswordInput] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [isShaking, setIsShaking] = useState(false);
-  const [deck, setDeck] = useState<MemoryCard[]>(() => generateShuffledDeck());
-  const [flippedCards, setFlippedCards] = useState<number[]>([]);
-  const [matchedPairs, setMatchedPairs] = useState<number[]>([]);
-  const [moveCount, setMoveCount] = useState(0);
-  const [isProcessing, setIsProcessing] = useState(false);
 
   const displayedItems =
     filter === "all"
@@ -127,61 +98,6 @@ export default function Memories() {
       setTimeout(() => setIsShaking(false), 400);
     }
   };
-
-  const handleCardClick = (cardIndex: number) => {
-    if (isProcessing) return;
-    if (flippedCards.includes(cardIndex)) return;
-    if (matchedPairs.includes(deck[cardIndex].pairId)) return;
-
-    const newFlipped = [...flippedCards, cardIndex];
-    setFlippedCards(newFlipped);
-    playPopSound();
-
-    if (newFlipped.length === 2) {
-      setMoveCount((m) => m + 1);
-      setIsProcessing(true);
-      const [firstIdx, secondIdx] = newFlipped;
-      const firstCard = deck[firstIdx];
-      const secondCard = deck[secondIdx];
-
-      if (firstCard.pairId === secondCard.pairId) {
-        playChimeSound(1.2);
-        setMatchedPairs((prev) => {
-          const updated = [...prev, firstCard.pairId];
-          if (updated.length === MEMORY_CARDS_DATA.length) {
-            setTimeout(() => {
-              playSparkleStrum();
-              launchConfetti({
-                particleCount: 110,
-                spread: 90,
-                shapes: ["star", "heart", "circle"],
-                colors: ["#8B5CF6", "#A78BFA", "#F5B84E", "#C4B5FD", "#FFFFFF"],
-              });
-            }, 300);
-          }
-          return updated;
-        });
-        setFlippedCards([]);
-        setIsProcessing(false);
-      } else {
-        setTimeout(() => {
-          setFlippedCards([]);
-          setIsProcessing(false);
-        }, 850);
-      }
-    }
-  };
-
-  const handleResetGame = () => {
-    setDeck(generateShuffledDeck());
-    setFlippedCards([]);
-    setMatchedPairs([]);
-    setMoveCount(0);
-    setIsProcessing(false);
-    playPopSound();
-  };
-
-  const isGameComplete = matchedPairs.length === MEMORY_CARDS_DATA.length;
 
   return (
     <main className="chapter inner-chapter page-wrap memories-chapter pt-8 pb-16">
@@ -377,116 +293,8 @@ export default function Memories() {
         )}
       </div>
 
-      {/* Memory Match Mini-Game to Unlock Chapter 4 */}
-      <section className="my-14 cute-card p-6 md:p-8 max-w-xl mx-auto text-center">
-        <span className="tape-strip center-tape" />
-
-        <div className="flex items-center justify-center gap-2 mb-2 kicker">
-          <Trophy size={16} className="text-amber-500" />
-          <span>mini challenge · unlock chapter 04</span>
-        </div>
-
-        <h3 className="text-2xl md:text-3xl font-bold mb-2" style={{ color: "var(--plum)" }}>
-          The Memory Match Game 🎴✨
-        </h3>
-
-        <p className="text-xs md:text-sm mb-6 leading-relaxed" style={{ color: "var(--plum-soft)", maxWidth: "440px", margin: "0 auto 20px" }}>
-          Flip and match all 4 memory pairs to unlock your way into the Birthday Arcade!
-        </p>
-
-        {/* 8-Card Grid (4x2) */}
-        <div className="grid grid-cols-4 gap-2.5 sm:gap-3 max-w-md mx-auto my-2">
-          {deck.map((card, idx) => {
-            const isFlipped = flippedCards.includes(idx) || matchedPairs.includes(card.pairId);
-            const isMatched = matchedPairs.includes(card.pairId);
-
-            return (
-              <button
-                key={card.id}
-                type="button"
-                onClick={() => handleCardClick(idx)}
-                disabled={isFlipped && isMatched}
-                className={`h-22 sm:h-26 rounded-2xl flex flex-col items-center justify-center p-2 transition-all duration-300 relative select-none cursor-pointer ${
-                  isFlipped
-                    ? isMatched
-                      ? "scale-[1.03] shadow-sm ring-2 ring-emerald-400"
-                      : "scale-[1.03] shadow-sm ring-2 ring-[var(--purple)]"
-                    : "hover:-translate-y-1 hover:shadow-md active:scale-95"
-                }`}
-                style={{
-                  background: isFlipped
-                    ? isMatched
-                      ? "linear-gradient(135deg, #f0fdf4, #dcfce7)"
-                      : "linear-gradient(135deg, #faf5ff, #ede4ff)"
-                    : "linear-gradient(135deg, #ffffff, #f7f2ff)",
-                  border: isFlipped
-                    ? isMatched
-                      ? "2px solid #22c55e"
-                      : "2px solid var(--purple)"
-                    : "2px dashed var(--line)",
-                }}
-              >
-                {isFlipped ? (
-                  <div className="flex flex-col items-center justify-center gap-1 animate-in zoom-in-75 duration-200">
-                    <span className="text-2xl sm:text-3xl select-none">{card.emoji}</span>
-                    <span className="text-[10px] sm:text-[11px] font-bold leading-tight" style={{ color: "var(--plum)" }}>
-                      {card.label}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center gap-1 opacity-50">
-                    <span className="text-xl sm:text-2xl text-[var(--purple)]">✦</span>
-                    <span className="text-[9px] uppercase font-bold tracking-wider text-[var(--plum-soft)]">
-                      Tap
-                    </span>
-                  </div>
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Stats / Win State */}
-        {isGameComplete ? (
-          <div className="mt-6 p-5 sm:p-6 rounded-2xl animate-in zoom-in-95 duration-400 flex flex-col items-center gap-3.5 text-center"
-            style={{ background: "linear-gradient(135deg, #fff9e6, #fff3cc)", border: "2px dashed var(--butter)", boxShadow: "0 6px 18px rgba(245,184,78,0.22)" }}>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-amber-900 bg-amber-200/60">
-              <Sparkles size={13} /> Cleared in {moveCount} moves!
-            </div>
-
-            <h4 className="text-xl sm:text-2xl font-bold text-amber-950">
-              Memory 100% Intact! 🏆🎉
-            </h4>
-
-            <p className="text-xs sm:text-sm text-amber-900 max-w-sm leading-relaxed">
-              You found every single memory pair! Your reward? The games and prizes are waiting.
-            </p>
-
-            <div className="flex flex-wrap items-center justify-center gap-3 mt-1">
-              <a
-                href="/arcade"
-                className="cute-btn butter flex items-center gap-2 text-sm px-6 py-3"
-              >
-                <span>Enter The Arcade 🎮</span>
-                <ArrowRight size={16} />
-              </a>
-              <button
-                type="button"
-                onClick={handleResetGame}
-                className="cute-btn ghost sm flex items-center gap-1.5"
-              >
-                <RotateCcw size={13} />
-                <span>Play Again</span>
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="mt-5 flex items-center justify-between max-w-md mx-auto text-xs px-2" style={{ color: "var(--plum-soft)" }}>
-            <span className="font-semibold">Moves: {moveCount}</span>
-            <span className="font-semibold">Pairs Found: {matchedPairs.length} / 4</span>
-          </div>
-        )}
-      </section>
+      {/* Speedometer Love-o-Meter Challenge to Unlock Chapter 4 */}
+      <LoveMeter />
     </main>
   );
 }

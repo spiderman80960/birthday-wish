@@ -1,7 +1,7 @@
 /* Birthday celebration: Chapter 5 (The Arcade) — Cute & Aesthetic Restyle */
 
 import { useState } from "react";
-import { Sparkles, Trophy, Heart, RotateCcw, AlertTriangle, ArrowRight, Crown } from "lucide-react";
+import { Sparkles, Trophy, RotateCcw, ArrowRight, Crown } from "lucide-react";
 import { PuzzleGame } from "@/components/PuzzleGame";
 import { launchConfetti } from "@/lib/confetti";
 import { playPopSound, playSparkleStrum, playChimeSound, playBirthdayMelody } from "@/lib/audio";
@@ -15,21 +15,21 @@ interface Balloon {
 }
 
 const INITIAL_BALLOONS: Balloon[] = [
-  { id: 1, color: "#8B5CF6", label: "01", popped: false, message: "You somehow had a way of making even the most ordinary days genuinely fun. ✨" },
-  { id: 2, color: "#A78BFA", label: "02", popped: false, message: "Your 'quick' phone calls had a habit of accidentally turning into two-hour conversations. 💖" },
-  { id: 3, color: "#F5B84E", label: "03", popped: false, message: "You have a laugh that was dangerously easy to join in on. 😂" },
-  { id: 4, color: "#9CCBE8", label: "04", popped: false, message: "Somehow, you could turn a simple random plan into an entire adventure. ☕" },
-  { id: 5, color: "#C4B5FD", label: "05", popped: false, message: "You were very easy to tease... which is probably why I did it so much! 🌟" },
-  { id: 6, color: "#6D28D9", label: "06", popped: false, message: "You've been part of some genuinely happy memories of mine, and I'll always appreciate that. 🎉" },
+  { id: 1, color: "#8B5CF6", label: "01", popped: false, message: "You had a way of making even the most ordinary days feel a little more special. ✨" },
+  { id: 2, color: "#A78BFA", label: "02", popped: false, message: "Those quick calls that somehow turned into long conversations are memories I still remember fondly. 💗" },
+  { id: 3, color: "#F5B84E", label: "03", popped: false, message: "Your laugh was contagious, and it was hard not to smile along with you. 😂" },
+  { id: 4, color: "#9CCBE8", label: "04", popped: false, message: "Some of our best memories came from plans we never thought would become such big moments. 🎈" },
+  { id: 5, color: "#C4B5FD", label: "05", popped: false, message: "I teased you quite a lot, didn't I? Maybe that was just my way of showing how comfortable I felt around you. 🤭" },
+  { id: 6, color: "#6D28D9", label: "06", popped: false, message: "Whatever changed between us, I'm still glad our paths crossed and that I got to share those moments with you. 💜" },
 ];
 
 const VOUCHERS = [
-  "☕ Coffee & a ridiculous catch-up",
-  "🍫 Your favorite dessert — my treat",
-  "📸 20 aesthetic photos (since I'm your photographer now)",
-  "🍕 One completely unnecessary food adventure",
-  "🍿 Movie + snacks on me",
-  "🗣️ A random, no-pressure chat whenever life allows",
+  "☕ Coffee & a little catch-up",
+  "🍫 A sweet treat, just because",
+  "📸 Your unofficial photographer strikes again",
+  "🍕 One more food adventure",
+  "🍿 A movie night, if our paths cross",
+  "🗣️ A random chat, no occasion needed",
 ];
 
 export default function Arcade() {
@@ -37,7 +37,6 @@ export default function Arcade() {
   const [spinning, setSpinning] = useState(false);
   const [wheelRotation, setWheelRotation] = useState(0);
   const [wonVoucher, setWonVoucher] = useState<string | null>(null);
-  const [clickCount, setClickCount] = useState(0);
   const [crowned, setCrowned] = useState(false);
 
   const handlePopBalloon = (id: number) => {
@@ -67,26 +66,6 @@ export default function Arcade() {
     }, 3500);
   };
 
-  const cheekyMessages = [
-    "Do NOT press this button.",
-    "Hey! I explicitly said don't click it!",
-    "Why are you still clicking? Stop it! 😤",
-    "Are you naturally this rebellious? (Yes, you are)",
-    "Okay, one more click and something explodes...",
-    "🎉 BOOM: 1,000,000 friendship brownie points. Some things apparently survive everything. ❤️",
-  ];
-
-  const handleCheekyClick = () => {
-    setClickCount((c) => {
-      const next = Math.min(c + 1, cheekyMessages.length - 1);
-      if (next === cheekyMessages.length - 1) {
-        launchConfetti({ particleCount: 130, spread: 100, shapes: ["heart", "star"], colors: ["#F2849E", "#F5B84E", "#A9CFA0", "#9CCBE8"] });
-        playSparkleStrum();
-      } else { playPopSound(); }
-      return next;
-    });
-  };
-
   const handleCoronation = () => {
     setCrowned(true);
     playBirthdayMelody();
@@ -104,7 +83,7 @@ export default function Arcade() {
           </p>
           <h1>Little games, <i>big laughs</i> &amp; prizes.</h1>
           <p className="lede">
-            Pop the celebration balloons, solve the birthday memory puzzle, spin the wheel for real-life vouchers, and whatever you do... do NOT press the secret forbidden button!
+            Pop the celebration balloons, solve the birthday memory puzzle, and spin the wheel for real-life vouchers!
           </p>
         </div>
         <img src="/gifs/bear-party.gif" alt="Cute Party Bear" className="w-20 h-20 object-contain drop-shadow-md shrink-0 animate-bounce" style={{ animationDuration: "2.5s" }} />
@@ -228,29 +207,6 @@ export default function Arcade() {
             </div>
           </div>
         </div>
-      </section>
-
-      {/* Activity 4: Cheeky "Do NOT Click" */}
-      <section className="mb-14 p-8 rounded-xl border-2 flex flex-col items-center text-center relative overflow-hidden"
-        style={{ background: "var(--plum)", borderColor: "var(--purple)", color: "var(--cream)", boxShadow: "6px 8px 0 var(--purple-deep)" }}>
-        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "var(--butter)" }}>
-          <AlertTriangle size={14} /> Warning: Highly Forbidden
-        </div>
-        <h3 className="text-2xl md:text-3xl font-bold mb-4 hand" style={{ color: "var(--cream)" }}>
-          The "Do NOT Click" Button
-        </h3>
-        <p className="text-xs mb-6 leading-relaxed max-w-md" style={{ color: "#f0dfc6" }}>
-          {cheekyMessages[clickCount]}
-        </p>
-        <button
-          type="button"
-          onClick={handleCheekyClick}
-          className="cute-btn flex items-center gap-2"
-          style={{ background: "var(--purple)", boxShadow: "0 5px 0 var(--purple-deep), 0 0 20px rgba(139,92,246,0.5)" }}
-        >
-          <Heart size={15} fill="currentColor" />
-          {clickCount === cheekyMessages.length - 1 ? "You did it! ❤️" : "Click Me Anyway!"}
-        </button>
       </section>
 
       {/* Coronation Gateway */}

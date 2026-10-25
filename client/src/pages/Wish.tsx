@@ -1,11 +1,11 @@
 /* Birthday celebration: Chapter 6 (The Birthday Wish Room) — Dreamy Purple Restyle */
 
 import { useState } from "react";
-import { Check, RotateCcw, Sparkles, Send, Moon, Sun, Heart, Home } from "lucide-react";
+import { Check, RotateCcw, Sparkles, Moon, Sun, Heart, Home } from "lucide-react";
 import { launchConfetti } from "@/lib/confetti";
 import { playChimeSound, playSparkleStrum, playBirthdayMelody } from "@/lib/audio";
 import { useTheme } from "@/contexts/ThemeContext";
-import { sendWishEmail } from "@/lib/email";
+import { CosmicSphere3D } from "@/components/CosmicSphere3D";
 
 const STAR_PROMPTS = [
   "May you always have places and people where your mind feels completely peaceful",
@@ -26,8 +26,6 @@ const LOVE_MSGS: Record<number, string> = {
 export default function Wish() {
   const { setTheme } = useTheme();
   const [stars, setStars] = useState<boolean[]>([false, false, false, false, false]);
-  const [customWish, setCustomWish] = useState("");
-  const [launchedWish, setLaunchedWish] = useState<string | null>(null);
   const [activeBlessing, setActiveBlessing] = useState<string | null>(null);
 
   // Send some love back state
@@ -58,21 +56,6 @@ export default function Wish() {
     });
   };
 
-  const handleLaunchWish = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!customWish.trim()) return;
-    setLaunchedWish(customWish.trim());
-    playSparkleStrum();
-    launchConfetti({
-      particleCount: 110,
-      spread: 90,
-      shapes: ["star", "heart"],
-      colors: ["#8B5CF6", "#A78BFA", "#C4B5FD", "#F5B84E", "#FFFFFF"],
-    });
-    // Send launched wish to Raghav via EmailJS
-    sendWishEmail(customWish.trim(), "star_room");
-  };
-
   const handleSendLove = () => {
     const next = heartsSent + 1;
     setHeartsSent(next);
@@ -93,8 +76,6 @@ export default function Wish() {
 
   const reset = () => {
     setStars([false, false, false, false, false]);
-    setLaunchedWish(null);
-    setCustomWish("");
     setActiveBlessing(null);
     setHeartsSent(0);
     setLoveMessage("");
@@ -123,47 +104,8 @@ export default function Wish() {
             </div>
           </div>
 
-          {/* Custom Wish Launcher */}
-          <div className="mt-8 cute-card p-5 relative">
-            <span className="tape-strip left-tape" />
-            <h3 className="text-sm font-bold flex items-center gap-1.5 mb-3" style={{ color: "var(--plum)" }}>
-              <Sparkles size={14} style={{ color: "var(--purple)" }} /> What is your biggest birthday wish?
-            </h3>
-            {!launchedWish ? (
-              <form onSubmit={handleLaunchWish} className="flex flex-col gap-2">
-                <input
-                  type="text"
-                  value={customWish}
-                  onChange={(e) => setCustomWish(e.target.value)}
-                  placeholder="Type your secret wish here..."
-                  className="w-full px-3.5 py-2 text-sm rounded-xl outline-none"
-                  style={{
-                    background: "#FAF7FF",
-                    border: "2px solid var(--line)",
-                    color: "var(--plum)",
-                    fontFamily: "Baloo 2, sans-serif",
-                  }}
-                />
-                <button
-                  type="submit"
-                  disabled={!customWish.trim()}
-                  className="cute-btn sm flex items-center justify-center gap-1.5 disabled:opacity-50"
-                >
-                  <Send size={13} /> Launch Wish to the Stars
-                </button>
-              </form>
-            ) : (
-              <div
-                className="mt-2 p-3 rounded-xl animate-in zoom-in-75"
-                style={{ background: "#F3EBFF", border: "1.5px dashed var(--purple)" }}
-              >
-                <p className="hand text-base" style={{ color: "var(--plum)" }}>"{launchedWish}"</p>
-                <small className="text-xs font-bold mt-1 block" style={{ color: "var(--purple-ink)" }}>
-                  ✦ Locked in the stars for your birthday ✦
-                </small>
-              </div>
-            )}
-          </div>
+          {/* 3D Celestial Gyroscope & Starlight Sphere */}
+          <CosmicSphere3D isComplete={complete} />
         </div>
 
         {/* The Cosmic Sky — kept dark as an atmospheric stargaze scene */}
@@ -214,32 +156,109 @@ export default function Wish() {
         )}
       </section>
 
-      {/* Completion Reveal Card */}
-      <section className={`wish-reveal ${complete ? "visible" : ""}`} aria-live="polite">
-        <div className="reveal-icon">
-          <Check size={22} />
-        </div>
-        <div className="space-y-3">
-          <p className="kicker text-sm">A quiet birthday wish for you, Ramya</p>
-          <h2>
+      {/* Final Birthday Note Section (Hidden until all 5 celestial stars are collected) */}
+      {!complete ? (
+        <section className="my-10 p-7 rounded-2xl text-center border-2 border-dashed border-purple-200 bg-purple-50/50 backdrop-blur-xs flex flex-col items-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-purple-100 border border-purple-300 text-purple-600 flex items-center justify-center text-xl shadow-xs animate-bounce" style={{ animationDuration: "2.5s" }}>
+            🔒
+          </div>
+          <div className="kicker text-xs uppercase tracking-wider text-purple-700 font-bold flex items-center gap-1.5">
+            <Sparkles size={13} className="text-amber-500" /> Final Birthday Note Sealed
+          </div>
+          <h3 className="text-xl sm:text-2xl font-bold" style={{ color: "var(--plum)" }}>
+            A Quiet Birthday Message is Waiting... 🌌✨
+          </h3>
+          <p className="text-xs sm:text-sm max-w-md leading-relaxed" style={{ color: "var(--plum-soft)" }}>
+            Collect and illuminate all 5 celestial stars above to reveal the quiet final birthday message for Ramya.
+          </p>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold text-purple-900 bg-purple-200/60 mt-1">
+            <span>{stars.filter(Boolean).length} / 5 stars illuminated</span>
+          </div>
+        </section>
+      ) : (
+        <section
+          className="my-12 p-8 sm:p-12 rounded-3xl animate-in zoom-in-95 duration-500 relative overflow-hidden"
+          style={{
+            background: "linear-gradient(135deg, #ffffff 0%, #faf7ff 65%, #f5efff 100%)",
+            border: "2px solid var(--purple)",
+            boxShadow: "0 14px 40px rgba(109, 40, 217, 0.12), 0 4px 12px rgba(109, 40, 217, 0.06)",
+          }}
+        >
+          <span className="tape-strip center-tape" />
+
+          {/* Header Badge */}
+          <div className="flex items-center gap-2 kicker text-xs uppercase tracking-wider font-extrabold text-[var(--purple-deep)] mb-3">
+            <Sparkles size={14} className="text-amber-500" />
+            <span>A quiet birthday wish for you, Ramya 💜</span>
+          </div>
+
+          {/* Main Title */}
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight mb-6" style={{ color: "var(--plum)" }}>
             May this year bring you peace, laughter, and <i>genuine happiness.</i>
           </h2>
-          <p className="text-sm leading-relaxed" style={{ color: "var(--plum-soft)" }}>
-            I hope this birthday gives you everything you deserve. We shared a chapter during the internship that became a really special part of my everyday life. Even though things aren't the same now, I don't want to forget how happy and effortless that time was — the calls, the teasing, the trips, the games, and all the random laughter.
-          </p>
-          <p className="text-sm leading-relaxed" style={{ color: "var(--plum-soft)" }}>
-            I don't know what the future looks like for us, and I'm not asking it to be anything specific. If someday we naturally find our way back to talking like we used to, I'll honestly be very happy. If life takes us in different directions, that's okay too — I'll always be grateful for the time we shared.
-          </p>
-          <p className="hand text-base pt-2">
-            Happy Birthday, Ramya. I genuinely hope you're happy. ✨
-          </p>
-        </div>
-        {complete && (
-          <button className="cute-btn ghost sm mt-4 flex items-center gap-1" onClick={reset}>
-            <RotateCcw size={15} /> reset the stars
-          </button>
-        )}
-      </section>
+
+          {/* Note Body Paragraphs */}
+          <div className="space-y-4 text-sm sm:text-base leading-relaxed" style={{ color: "var(--plum-soft)" }}>
+            <p className="font-semibold text-base sm:text-lg" style={{ color: "var(--plum)" }}>
+              Happy Birthday, Ramya.
+            </p>
+
+            <p>
+              There's something I've wanted to say for a long time, and maybe this is the last place I'll try to put it into words.
+            </p>
+
+            <p>
+              For a long time, I felt like I was being made out to be the one who was wrong, as though my reactions were the whole story and everything that led to them didn't matter. But I noticed things too, Ramya. Things that changed, things that didn't add up, and things I tried to talk to you about but never felt were truly heard. You might have thought I didn't know, but I had been noticing more than you realised.
+            </p>
+
+            <p>
+              What hurt me most wasn't just the changes between us. It was seeing behaviour change depending on who was around, feeling that things were being hidden from me, and wondering why I was left to question myself while my concerns went unheard. I kept giving you the benefit of the doubt because I trusted you. Looking back, trusting so blindly was my mistake.
+            </p>
+
+            <p>
+              I don't know whether you ever understood how things looked from my side. Sometimes, I felt that my mistakes were brought forward while the things that hurt me stayed unspoken. I wanted to sit down with you, tell you what I'd noticed, and ask you honestly why things happened the way they did. Not to win an argument, but because I thought what we shared deserved that honesty. But we never really had that conversation.
+            </p>
+
+            <p>
+              I'm not writing this to reopen every incident or demand an explanation from you. You made your choices, and that's your right. I've made mine too. I just don't want my silence to be mistaken for not noticing, not understanding, or being unaffected by what happened.
+            </p>
+
+            <p>
+              Despite everything, I can't pretend our time together meant nothing to me. You were once a part of my everyday life, someone I looked forward to talking to, laughing with, and sharing the smallest details of my day with. That mattered to me, and the memories don't disappear just because things changed.
+            </p>
+
+            <p>
+              I wish things had been different. I wish we could have spoken honestly before everything became so distant. There are still questions I never got to ask, but I've accepted that I may never get the answers. Not every story ends with the clarity we hoped for.
+            </p>
+
+            <p>
+              Whatever happened between us, you will always be a part of my life. I can acknowledge the hurt without denying the good, and I can let go of what happened without pretending it never mattered.
+            </p>
+
+            <p>
+              So, today, I genuinely hope life brings you happiness, peace, and everything you're working towards. I hope you have plenty of reasons to smile, and that the people in your life treat your trust and care with the same sincerity you hope to receive.
+            </p>
+
+            <div className="pt-5 border-t border-purple-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-6">
+              <div>
+                <p className="text-base sm:text-lg font-bold" style={{ color: "var(--plum)" }}>
+                  Happy Birthday, Ramya. 💜
+                </p>
+                <p className="hand text-lg sm:text-xl italic mt-0.5" style={{ color: "var(--purple-ink)" }}>
+                  Despite everything, I truly hope you're happy. ✨
+                </p>
+              </div>
+
+              <button
+                className="cute-btn ghost sm flex items-center gap-1.5 self-start sm:self-auto shrink-0"
+                onClick={reset}
+              >
+                <RotateCcw size={14} /> reset the stars
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ========================================================================= */}
       {/* FEATURE: SEND SOME LOVE BACK & GRAND FINALE */}

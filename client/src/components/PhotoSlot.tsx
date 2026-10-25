@@ -113,12 +113,14 @@ export function PhotoSlot({
             </span>
           </div>
 
-          {/* Caption & Story Area (Fully Readable, High Contrast, Uneditable) */}
-          <div className="mt-3 px-1">
-            <p className="text-xs font-['Fraunces'] italic text-slate-800 dark:text-[#ede4ff] leading-relaxed select-text">
-              “{captionPrompt}”
-            </p>
-          </div>
+          {/* Caption & Story Area (Only if captionPrompt is provided) */}
+          {captionPrompt ? (
+            <div className="mt-3 px-1">
+              <p className="text-xs font-['Fraunces'] italic text-slate-800 dark:text-[#ede4ff] leading-relaxed select-text">
+                “{captionPrompt}”
+              </p>
+            </div>
+          ) : null}
 
           {/* Decorative Sticker Tag */}
           {stickerText && (
