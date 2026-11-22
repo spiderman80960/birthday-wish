@@ -210,7 +210,7 @@ export default function Letter() {
 
       if (!res.ok || !data || !data.success || !data.letter) {
         const errorMsg = data?.error || (res.status === 401
-          ? "Hmm, not quite! Think about what we used to call each other. 🥹"
+          ? "Hmm, not quite! Think about the word we used to address each other when we were good. 🥹"
           : "Could not verify code. Please check your connection and try again.");
         setUnlockError(errorMsg);
         playPopSound();
@@ -520,7 +520,7 @@ export default function Letter() {
                   className="px-4 py-2.5 rounded-2xl text-xs md:text-sm font-['Caveat'] text-lg font-bold mb-5 border border-purple-200 inline-block"
                   style={{ background: "#F5EFFE", color: "var(--purple-ink)" }}
                 >
-                  💭 Hint: “The name we used to call each other 💜”
+                  💭 Hint: “The word we used to address each other when we were good 💜”
                 </div>
 
                 {/* Unlock Form */}

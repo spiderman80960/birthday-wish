@@ -186,7 +186,7 @@ export async function handleUnlockLetter(req: Request | any, res: Response | any
     if (!isSecretCodeValid(code)) {
       return sendJsonResponse(res, 401, {
         success: false,
-        error: "Hmm, not quite! Think about what we used to call each other. 🥹"
+        error: "Hmm, not quite! Think about the word we used to address each other when we were good. 🥹"
       });
     }
 
